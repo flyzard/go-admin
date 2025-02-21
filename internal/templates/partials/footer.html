@@ -1,0 +1,77 @@
+<!-- internal/templates/partials/footer.html -->
+<footer class="bg-white border-t mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="flex justify-between items-center">
+            <div class="text-sm text-gray-500">
+                © {{ .currentYear }} Admin Panel. All rights reserved.
+            </div>
+            
+            <!-- Optional: Add additional footer content -->
+            <div class="text-sm text-gray-500">
+                <span>Version 1.0.0</span>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Toast Messages Container -->
+<div id="toast-container" 
+     class="fixed bottom-4 right-4 z-50"
+     hx-trigger="showToast from:body"
+     hx-swap="beforeend">
+</div>
+
+<!-- Toast Template -->
+<template id="toast-template">
+    <div class="bg-white shadow-lg rounded-lg p-4 mb-4 flex items-center justify-between max-w-sm"
+         role="alert">
+        <div class="flex items-center">
+            <div class="ml-3">
+                <p class="text-sm font-medium text-gray-900" x-text="message"></p>
+            </div>
+        </div>
+        <button type="button" class="ml-4" @click="remove()">
+            <span class="sr-only">Close</span>
+            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+    </div>
+</template>
+
+<script>
+    // Toast notification system
+    window.showToast = function(message, type = 'success') {
+        const template = document.getElementById('toast-template');
+        const toast = template.content.cloneNode(true);
+        
+        // Set message and style based on type
+        toast.querySelector('p').textContent = message;
+        const toastElement = toast.querySelector('div[role="alert"]');
+        
+        switch(type) {
+            case 'success':
+                toastElement.classList.add('bg-green-50', 'border-green-500');
+                break;
+            case 'error':
+                toastElement.classList.add('bg-red-50', 'border-red-500');
+                break;
+            case 'warning':
+                toastElement.classList.add('bg-yellow-50', 'border-yellow-500');
+                break;
+        }
+        
+        // Add to container
+        document.getElementById('toast-container').appendChild(toast);
+        
+        // Remove after 5 seconds
+        setTimeout(() => {
+            toastElement.remove();
+        }, 5000);
+    }
+
+    // HTMX toast trigger handler
+    document.body.addEventListener('showToast', function(evt) {
+        showToast(evt.detail.message, evt.detail.type);
+    });
+</script>

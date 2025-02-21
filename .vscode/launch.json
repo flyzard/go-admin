@@ -1,0 +1,65 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Air Debug",
+            "type": "go",
+            "request": "attach",
+            "port": 2345,
+            "mode": "remote",
+            "host": "127.0.0.1",
+            "showLog": true,
+            // "trace": "verbose",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
+            //  "preLaunchTask": "Air - Hot Reload"
+        },
+        {
+            "name": "Launch Sync simulation",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/main.go",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "env": {
+                "TZ": "UTC"
+            }
+        },
+        {
+            "name": "Launch with Air",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/server",
+            "env": {
+                "GO_ENV": "development"
+            },
+            "args": []
+        },
+        {
+            "name": "Debug Server",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/cmd/server/main.go",
+            "env": {
+                "GO_ENV": "development"
+            },
+            "args": [],
+            "showLog": true
+        },
+        {
+            "name": "Debug with Air",
+            "type": "go",
+            "request": "attach",
+            "mode": "remote",
+            "remotePath": "${workspaceFolder}",
+            "port": 8085,
+            "host": "127.0.0.1",
+            "showLog": true,
+            // "preLaunchTask": "air",
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}

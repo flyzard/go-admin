@@ -1,0 +1,302 @@
+package domain
+
+import (
+	"encoding/json"
+	"time"
+)
+
+// Common types
+type ID uint64
+type Status string
+type Price float64
+
+// User status constants
+const (
+	StatusNew      Status = "new"
+	StatusApproved Status = "approved"
+	StatusRejected Status = "rejected"
+)
+
+// Address represents a physical location
+type Address struct {
+	ID        ID         `json:"id"`
+	Street    string     `json:"street"`
+	ZipCode   string     `json:"zipcode"`
+	City      string     `json:"city"`
+	Town      string     `json:"town"`
+	Country   string     `json:"country"`
+	DeletedAt *time.Time `json:"deleted_at,omitempty"`
+	CreatedAt *time.Time `json:"created_at,omitempty"`
+	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+}
+
+// Company represents a business entity
+type Company struct {
+	ID        ID         `json:"id"`
+	Name      string     `json:"name"`
+	NIF       string     `json:"nif"`
+	Phone     string     `json:"phone"`
+	AddressID ID         `json:"address_id"`
+	Address   Address    `json:"address"`
+	DeletedAt *time.Time `json:"deleted_at,omitempty"`
+	CreatedAt *time.Time `json:"created_at,omitempty"`
+	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+}
+
+// User represents a system user
+type User struct {
+	ID              ID         `json:"id"`
+	Name            string     `json:"name"`
+	Email           string     `json:"email"`
+	Password        string     `json:"-"`
+	Status          Status     `json:"status"`
+	CompanyID       *ID        `json:"company_id,omitempty"`
+	Company         *Company   `json:"company,omitempty"`
+	EmailVerifiedAt *time.Time `json:"email_verified_at,omitempty"`
+	RememberToken   string     `json:"remember_token,omitempty"`
+	DeletedAt       *time.Time `json:"deleted_at,omitempty"`
+	CreatedAt       *time.Time `json:"created_at,omitempty"`
+	UpdatedAt       *time.Time `json:"updated_at,omitempty"`
+}
+
+// Category represents a product category
+type Category struct {
+	ID        ID         `json:"id"`
+	Name      string     `json:"name"`
+	Slug      string     `json:"slug"`
+	Icon      string     `json:"icon"`
+	ParentID  *ID        `json:"parent_id,omitempty"`
+	Parent    *Category  `json:"parent,omitempty"`
+	Order     int16      `json:"order"`
+	IsActive  bool       `json:"is_active"`
+	InMenu    bool       `json:"in_menu"`
+	DeletedAt *time.Time `json:"deleted_at,omitempty"`
+	CreatedAt *time.Time `json:"created_at,omitempty"`
+	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+}
+
+// Product represents a product in the catalog
+type Product struct {
+	ID               ID              `json:"id"`
+	Name             string          `json:"name"`
+	Slug             string          `json:"slug"`
+	ShortDescription string          `json:"short_description"`
+	Description      string          `json:"description"`
+	Status           bool            `json:"status"`
+	CategoryID       *ID             `json:"category_id,omitempty"`
+	Category         *Category       `json:"category,omitempty"`
+	Datasheet        string          `json:"datasheet"`
+	Prices           json.RawMessage `json:"prices"`
+	Measures         json.RawMessage `json:"measures"`
+	Photos           json.RawMessage `json:"photos"`
+	ColorPhotos      json.RawMessage `json:"color_photos"`
+	Sizes            json.RawMessage `json:"sizes"`
+	DeletedAt        *time.Time      `json:"deleted_at,omitempty"`
+	CreatedAt        *time.Time      `json:"created_at,omitempty"`
+	UpdatedAt        *time.Time      `json:"updated_at,omitempty"`
+}
+
+// ProductVariant represents a specific variant of a product
+type ProductVariant struct {
+	ID              ID              `json:"id"`
+	ProductID       ID              `json:"product_id"`
+	SKU             string          `json:"sku"`
+	Size            string          `json:"size"`
+	Colors          json.RawMessage `json:"colors"`
+	Prices          json.RawMessage `json:"prices"`
+	Availability    int             `json:"availability"`
+	Status          bool            `json:"status"`
+	NextArrivalQty  *int            `json:"next_arrival_qty,omitempty"`
+	NextArrivalDate *time.Time      `json:"next_arrival_date,omitempty"`
+	DeletedAt       *time.Time      `json:"deleted_at,omitempty"`
+	CreatedAt       *time.Time      `json:"created_at,omitempty"`
+	UpdatedAt       *time.Time      `json:"updated_at,omitempty"`
+}
+
+// Cart represents a shopping cart
+type Cart struct {
+	ID        ID         `json:"id"`
+	CompanyID ID         `json:"company_id"`
+	Status    int16      `json:"status"`
+	Items     []CartItem `json:"items"`
+	DeletedAt *time.Time `json:"deleted_at,omitempty"`
+	CreatedAt *time.Time `json:"created_at,omitempty"`
+	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+}
+
+// CartItem represents an item in a cart
+type CartItem struct {
+	ID               ID         `json:"id"`
+	CartID           ID         `json:"cart_id"`
+	ProductVariantID ID         `json:"product_variant_id"`
+	ProductID        *int       `json:"product_id,omitempty"`
+	Quantity         int        `json:"quantity"`
+	UnitPrice        Price      `json:"unit_price"`
+	DeletedAt        *time.Time `json:"deleted_at,omitempty"`
+	CreatedAt        *time.Time `json:"created_at,omitempty"`
+	UpdatedAt        *time.Time `json:"updated_at,omitempty"`
+}
+
+// Order represents a customer order
+type Order struct {
+	ID           ID         `json:"id"`
+	Status       int16      `json:"status"`
+	CartID       ID         `json:"cart_id"`
+	UserID       ID         `json:"user_id"`
+	CompanyID    ID         `json:"company_id"`
+	IP           string     `json:"ip"`
+	Notes        string     `json:"notes"`
+	ShippingCost *Price     `json:"shipping_cost,omitempty"`
+	Total        Price      `json:"total"`
+	Taxes        Price      `json:"taxes"`
+	Weight       *Price     `json:"weight,omitempty"`
+	Withdraw     bool       `json:"withdraw"`
+	DeletedAt    *time.Time `json:"deleted_at,omitempty"`
+	CreatedAt    *time.Time `json:"created_at,omitempty"`
+	UpdatedAt    *time.Time `json:"updated_at,omitempty"`
+}
+
+// Color represents a product color
+type Color struct {
+	ID   ID     `json:"id"`
+	Name string `json:"name"`
+	Code string `json:"code"`
+}
+
+// Catalog represents a product catalog
+type Catalog struct {
+	ID          ID         `json:"id"`
+	Name        string     `json:"name"`
+	Slug        string     `json:"slug"`
+	Description string     `json:"description"`
+	PDFPath     string     `json:"pdf_path"`
+	DeletedAt   *time.Time `json:"deleted_at,omitempty"`
+	CreatedAt   *time.Time `json:"created_at,omitempty"`
+	UpdatedAt   *time.Time `json:"updated_at,omitempty"`
+}
+
+// Ticket represents a support ticket
+type Ticket struct {
+	ID             ID              `json:"id"`
+	Title          string          `json:"title"`
+	Description    string          `json:"description"`
+	Status         string          `json:"status"`
+	Priority       string          `json:"priority"`
+	Type           string          `json:"type"`
+	Images         json.RawMessage `json:"images"`
+	Reporter       string          `json:"reporter"`
+	Resolution     string          `json:"resolution"`
+	ResolutionDate string          `json:"resolution_date"`
+	DueDate        string          `json:"due_date"`
+	DeletedAt      *time.Time      `json:"deleted_at,omitempty"`
+	CreatedAt      *time.Time      `json:"created_at,omitempty"`
+	UpdatedAt      *time.Time      `json:"updated_at,omitempty"`
+}
+
+// Message represents a contact message
+type Message struct {
+	ID        ID         `json:"id"`
+	Name      string     `json:"name"`
+	Email     string     `json:"email"`
+	Subject   string     `json:"subject"`
+	Message   string     `json:"message"`
+	Phone     string     `json:"phone"`
+	CreatedAt *time.Time `json:"created_at,omitempty"`
+	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+}
+
+// Slide represents a homepage slide
+type Slide struct {
+	ID          ID         `json:"id"`
+	Title       string     `json:"title"`
+	Description string     `json:"description"`
+	Image       string     `json:"image"`
+	Link        string     `json:"link"`
+	LinkText    string     `json:"link_text"`
+	Order       int8       `json:"order"`
+	Active      bool       `json:"active"`
+	ColorCode   string     `json:"color_code"`
+	DeletedAt   *time.Time `json:"deleted_at,omitempty"`
+	CreatedAt   *time.Time `json:"created_at,omitempty"`
+	UpdatedAt   *time.Time `json:"updated_at,omitempty"`
+}
+
+// ProductSection represents a section of featured products
+type ProductSection struct {
+	ID        ID              `json:"id"`
+	Title     string          `json:"title"`
+	LinkText  string          `json:"link_text"`
+	Link      string          `json:"link"`
+	Image     string          `json:"image"`
+	Products  json.RawMessage `json:"products"`
+	Order     int8            `json:"order"`
+	Active    bool            `json:"active"`
+	DeletedAt *time.Time      `json:"deleted_at,omitempty"`
+	CreatedAt *time.Time      `json:"created_at,omitempty"`
+	UpdatedAt *time.Time      `json:"updated_at,omitempty"`
+}
+
+// Repository interfaces
+type Repository interface {
+	Create(interface{}) error
+	Update(interface{}) error
+	Delete(ID) error
+	FindByID(ID) (interface{}, error)
+}
+
+type UserRepository interface {
+	Repository
+	FindByEmail(email string) (*User, error)
+	UpdateStatus(id ID, status Status) error
+}
+
+type ProductRepository interface {
+	Repository
+	FindBySlug(slug string) (*Product, error)
+	FindByCategory(categoryID ID) ([]*Product, error)
+	AddVariant(variant *ProductVariant) error
+	UpdateVariant(variant *ProductVariant) error
+}
+
+type CartRepository interface {
+	Repository
+	AddItem(item *CartItem) error
+	RemoveItem(itemID ID) error
+	GetItems(cartID ID) ([]CartItem, error)
+	UpdateItemQuantity(itemID ID, quantity int) error
+}
+
+type OrderRepository interface {
+	Repository
+	FindByUser(userID ID) ([]*Order, error)
+	FindByCompany(companyID ID) ([]*Order, error)
+	UpdateStatus(id ID, status int16) error
+}
+
+// Service interfaces
+type CartService interface {
+	CreateCart(companyID ID) (*Cart, error)
+	AddToCart(cartID ID, variantID ID, quantity int) error
+	RemoveFromCart(cartID ID, itemID ID) error
+	UpdateQuantity(cartID ID, itemID ID, quantity int) error
+	GetCart(cartID ID) (*Cart, error)
+	CalculateCartTotals(cart *Cart) error
+}
+
+type OrderService interface {
+	CreateOrder(cart *Cart, userID ID) (*Order, error)
+	UpdateOrderStatus(orderID ID, status int16) error
+	GetOrder(orderID ID) (*Order, error)
+	GetUserOrders(userID ID) ([]*Order, error)
+	CalculateOrderTotals(order *Order) error
+}
+
+type ProductService interface {
+	CreateProduct(product *Product) error
+	UpdateProduct(product *Product) error
+	AddVariant(productID ID, variant *ProductVariant) error
+	UpdateVariant(variant *ProductVariant) error
+	GetProduct(id ID) (*Product, error)
+	GetProductBySlug(slug string) (*Product, error)
+	GetProductVariants(productID ID) ([]*ProductVariant, error)
+}
