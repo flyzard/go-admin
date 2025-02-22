@@ -1,0 +1,120 @@
+{{ define "content" }}
+
+<div class="py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+        <h1 class="text-2xl font-semibold text-gray-900">Dashboard</h1>
+    </div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+        <!-- Dashboard content -->
+        <div class="py-4">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <!-- Stats Card -->
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="p-5">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <!-- You can add an icon here -->
+                            </div>
+                            <div class="ml-5 w-0 flex-1">
+                                <dl>
+                                    <dt class="text-sm font-medium text-gray-500 truncate">
+                                        Total Orders
+                                    </dt>
+                                    <dd class="flex items-baseline">
+                                        <div class="text-2xl font-semibold text-gray-900">
+                                            {{ .totalOrders }}
+                                        </div>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- More stats cards -->
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="p-5">
+                        <div class="flex items-center">
+                            <div class="ml-5 w-0 flex-1">
+                                <dl>
+                                    <dt class="text-sm font-medium text-gray-500 truncate">
+                                        Active Products
+                                    </dt>
+                                    <dd class="flex items-baseline">
+                                        <div class="text-2xl font-semibold text-gray-900">
+                                            {{ .totalProducts }}
+                                        </div>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="p-5">
+                        <div class="flex items-center">
+                            <div class="ml-5 w-0 flex-1">
+                                <dl>
+                                    <dt class="text-sm font-medium text-gray-500 truncate">
+                                        Total Users
+                                    </dt>
+                                    <dd class="flex items-baseline">
+                                        <div class="text-2xl font-semibold text-gray-900">
+                                            {{ .totalUsers }}
+                                        </div>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="mt-8">
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">
+                            Recent Activity
+                        </h3>
+                    </div>
+                    <div class="px-4 py-5 sm:p-6">
+                        <div class="flow-root">
+                            <ul role="list" class="-mb-8">
+                                {{ range .recentActivity }}
+                                <li>
+                                    <div class="relative pb-8">
+                                        <div class="relative flex space-x-3">
+                                            <div>
+                                                <span class="h-8 w-8 rounded-full bg-gray-400 flex items-center justify-center ring-8 ring-white">
+                                                    <!-- Activity icon -->
+                                                </span>
+                                            </div>
+                                            <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                                                <div>
+                                                    <p class="text-sm text-gray-500">
+                                                        {{ .description }}
+                                                    </p>
+                                                </div>
+                                                <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                                                    <time datetime="{{ .createdAt }}">{{ .createdAt }}</time>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                {{ end }}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{ end }}
+
+{{ template "layouts.base" .}}

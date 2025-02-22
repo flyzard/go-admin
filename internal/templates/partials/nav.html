@@ -1,4 +1,3 @@
-<!-- internal/templates/partials/nav.html -->
 <nav class="bg-gray-50 border-r min-h-screen w-64 px-4 py-6 fixed left-0 top-0">
     <!-- Logo Area -->
     <div class="mb-8">
@@ -9,7 +8,7 @@
 
     <!-- Navigation Links -->
     <div class="space-y-1">
-        <a href="/dashboard" 
+        <a href="/" 
            class="block px-4 py-2 rounded-md text-gray-700 hover:bg-gray-200 {{ if eq .currentPage "dashboard" }}bg-gray-200{{ end }}">
             <div class="flex items-center">
                 <span>Dashboard</span>
@@ -58,7 +57,7 @@
             </div>
         </a>
 
-        <a href="/produtos" 
+        <a href="/products" 
            class="block px-4 py-2 rounded-md text-gray-700 hover:bg-gray-200 {{ if eq .currentPage "produtos" }}bg-gray-200{{ end }}">
             <div class="flex items-center">
                 <span>Produtos</span>

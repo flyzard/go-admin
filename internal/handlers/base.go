@@ -7,6 +7,7 @@ import (
 	"belcamp/internal/utils"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/csrf"
 )
 
 // BaseHandler is a base handler for all handlers
@@ -26,8 +27,10 @@ func (h *BaseHandler) Render(c *gin.Context, templateName string, data gin.H) {
 	}
 
 	data["User"] = templateData.User
-	data["CurrentPage"] = templateData.CurrentPage
+	// data["CurrentPage"] = templateData.CurrentPage
 	data["CurrentYear"] = templateData.CurrentYear
+	data["currentPage"] = utils.GetCurrentPage(c)
+	data["csrf_token"] = csrf.Token(c.Request)
 
 	c.HTML(http.StatusOK, templateName, data)
 }

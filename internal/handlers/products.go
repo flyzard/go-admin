@@ -38,7 +38,7 @@ func (h *ProductHandler) List(c *gin.Context) {
 
 	// If it's an HTMX request, return only the table
 	if c.GetHeader("HX-Request") == "true" {
-		c.HTML(http.StatusOK, "products/partials/table.html", gin.H{
+		c.HTML(http.StatusOK, "pages.products.table", gin.H{
 			"products": products,
 			"page":     page,
 			"total":    total,
@@ -48,7 +48,7 @@ func (h *ProductHandler) List(c *gin.Context) {
 	}
 
 	// Otherwise return the full page
-	h.Render(c, "products/index.html", gin.H{
+	h.Render(c, "pages.products.index", gin.H{
 		"title":    "Products",
 		"products": products,
 		"page":     page,
@@ -71,7 +71,7 @@ func (h *ProductHandler) Show(c *gin.Context) {
 		return
 	}
 
-	h.Render(c, "products/show.html", gin.H{
+	h.Render(c, "products.show", gin.H{
 		"title":   product.Name,
 		"product": product,
 	})
@@ -80,14 +80,14 @@ func (h *ProductHandler) Show(c *gin.Context) {
 // ShowCreateForm displays the product creation form
 func (h *ProductHandler) ShowCreateForm(c *gin.Context) {
 	if c.GetHeader("HX-Request") == "true" {
-		c.HTML(http.StatusOK, "products/partials/form.html", gin.H{
+		c.HTML(http.StatusOK, "products.form", gin.H{
 			"action": "/products",
 			"method": "POST",
 		})
 		return
 	}
 
-	h.Render(c, "products/create.html", gin.H{
+	h.Render(c, "products.create", gin.H{
 		"title":  "Create Product",
 		"action": "/products",
 		"method": "POST",
@@ -163,7 +163,7 @@ func (h *ProductHandler) ShowEditForm(c *gin.Context) {
 	}
 
 	if c.GetHeader("HX-Request") == "true" {
-		c.HTML(http.StatusOK, "products/partials/form.html", gin.H{
+		c.HTML(http.StatusOK, "products.form", gin.H{
 			"product": product,
 			"action":  "/products/" + strconv.FormatUint(id, 10),
 			"method":  "PUT",
@@ -171,7 +171,7 @@ func (h *ProductHandler) ShowEditForm(c *gin.Context) {
 		return
 	}
 
-	h.Render(c, "products/edit.html", gin.H{
+	h.Render(c, "products.edit", gin.H{
 		"title":   "Edit " + product.Name,
 		"product": product,
 		"action":  "/products/" + strconv.FormatUint(id, 10),
@@ -240,7 +240,7 @@ func (h *ProductHandler) Delete(c *gin.Context) {
 
 	if c.GetHeader("HX-Request") == "true" {
 		// Return success message or updated table
-		c.HTML(http.StatusOK, "products/partials/table.html", gin.H{
+		c.HTML(http.StatusOK, "pages.products.table", gin.H{
 			"message": "Product deleted successfully",
 		})
 		return
@@ -264,13 +264,13 @@ func (h *ProductHandler) Variants(c *gin.Context) {
 	}
 
 	if c.GetHeader("HX-Request") == "true" {
-		c.HTML(http.StatusOK, "products/partials/variants.html", gin.H{
+		c.HTML(http.StatusOK, "products.variants", gin.H{
 			"variants": variants,
 		})
 		return
 	}
 
-	h.Render(c, "products/variants.html", gin.H{
+	h.Render(c, "products.variants", gin.H{
 		"title":    "Product Variants",
 		"variants": variants,
 	})
@@ -289,14 +289,14 @@ func (h *ProductHandler) Search(c *gin.Context) {
 	}
 
 	if c.GetHeader("HX-Request") == "true" {
-		c.HTML(http.StatusOK, "products/partials/table.html", gin.H{
+		c.HTML(http.StatusOK, "pages.products.table", gin.H{
 			"products": products,
 			"total":    total,
 		})
 		return
 	}
 
-	h.Render(c, "products/index.html", gin.H{
+	h.Render(c, "pages.products.index", gin.H{
 		"title":    "Search Results",
 		"products": products,
 		"total":    total,
@@ -307,13 +307,13 @@ func (h *ProductHandler) Search(c *gin.Context) {
 // handleError handles error responses
 func (h *ProductHandler) handleError(c *gin.Context, err error) {
 	if c.GetHeader("HX-Request") == "true" {
-		c.HTML(http.StatusBadRequest, "shared/partials/error.html", gin.H{
+		c.HTML(http.StatusBadRequest, "shared.error", gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
 
-	h.Render(c, "shared/error.html", gin.H{
+	h.Render(c, "shared.error", gin.H{
 		"title": "Error",
 		"error": err.Error(),
 	})

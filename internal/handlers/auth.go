@@ -5,10 +5,10 @@ import (
 	"strings"
 
 	"belcamp/internal/service"
+	"belcamp/internal/utils"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
 )
 
 // AuthHandler is a handler for authentication
@@ -26,7 +26,7 @@ func NewAuthHandler(userService service.UserService) *AuthHandler {
 
 // ShowLogin renders the login page
 func (h *AuthHandler) ShowLogin(c *gin.Context) {
-	h.Render(c, "pages/login.html", gin.H{
+	h.Render(c, "pages.auth.login", gin.H{
 		"title": "Login",
 	})
 }
@@ -39,13 +39,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	}
 
 	if err := c.ShouldBind(&form); err != nil {
-		if c.GetHeader("HX-Request") == "true" {
-			c.HTML(http.StatusBadRequest, "partials/auth/login-form.html", gin.H{
-				"error": "Please fill in all fields correctly",
-			})
-			return
-		}
-		h.Render(c, "auth/login.html", gin.H{
+		h.Render(c, "pages.auth.login", gin.H{
 			"error": "Please fill in all fields correctly",
 		})
 		return
@@ -57,27 +51,15 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	// Get user by email
 	user, err := h.userService.GetUserByEmail(email)
 	if err != nil {
-		if c.GetHeader("HX-Request") == "true" {
-			c.HTML(http.StatusUnauthorized, "partials/auth/login-form.html", gin.H{
-				"error": "Invalid credentials",
-			})
-			return
-		}
-		h.Render(c, "auth/login.html", gin.H{
+		h.Render(c, "pages.auth.login", gin.H{
 			"error": "Invalid credentials",
 		})
 		return
 	}
 
-	// Check password
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(form.Password)); err != nil {
-		if c.GetHeader("HX-Request") == "true" {
-			c.HTML(http.StatusUnauthorized, "partials/auth/login-form.html", gin.H{
-				"error": "Invalid credentials",
-			})
-			return
-		}
-		h.Render(c, "auth/login.html", gin.H{
+	if !utils.CheckPassword(form.Password, user.Password) {
+		h.Render(c, "pages.auth.login", gin.H{
+			"title": "Login",
 			"error": "Invalid credentials",
 		})
 		return
@@ -86,27 +68,22 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	// Set session
 	session := sessions.Default(c)
 	session.Set("userID", user.ID)
-	session.Save()
-
-	// Redirect based on request type
-	if c.GetHeader("HX-Request") == "true" {
-		c.Header("HX-Redirect", "/dashboard")
-		c.Status(http.StatusOK)
+	if err := session.Save(); err != nil {
+		h.Render(c, "pages.auth.login", gin.H{
+			"error": "Failed to save session",
+		})
 		return
 	}
 
-	c.Redirect(http.StatusFound, "/dashboard")
+	c.Redirect(http.StatusFound, "/")
 }
 
 // Logout logs out a user
 func (h *AuthHandler) Logout(c *gin.Context) {
 	session := sessions.Default(c)
 	session.Clear()
-	session.Save()
-
-	if c.GetHeader("HX-Request") == "true" {
-		c.Header("HX-Redirect", "/login")
-		c.Status(http.StatusOK)
+	if err := session.Save(); err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 

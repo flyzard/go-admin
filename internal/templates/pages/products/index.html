@@ -1,7 +1,5 @@
-<!-- internal/templates/products/index.html -->
-{{ template "layouts/base.html" . }}
-
 {{ define "content" }}
+
 <div class="px-4 sm:px-6 lg:px-8">
     <div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
@@ -35,7 +33,7 @@
 
     <!-- Products Table -->
     <div id="products-table" class="mt-8">
-        {{ template "products/partials/table.html" . }}
+        {{ template "pages.products.table" . }}
     </div>
 </div>
 
@@ -51,3 +49,5 @@
     </div>
 </div>
 {{ end }}
+
+{{ template "layouts.base" . }}

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.title}} - Admin Panel</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+
+<body class="min-h-screen bg-gray-100">
+    <main class="container mx-auto px-4 py-8">
+        {{ block "content" . }}{{ end }}
+    </main>
+    {{ template "partials.footer" . }}
+</body>
+</html>

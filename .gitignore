@@ -25,3 +25,5 @@
 
 # OS specific
 .DS_Store
+
+/tmp/

@@ -20,6 +20,10 @@ test:
 lint:
 	golangci-lint run
 
+# .PHONY: templ
+# templ:
+#     templ generate ./internal/views/...
+
 # Install development tools
 install-tools:
 	go install github.com/cosmtrek/air@latest
