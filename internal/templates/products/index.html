@@ -1,4 +1,4 @@
-{{ define "content" }}
+{{ template "base.start" . }}
 
 <div class="px-4 sm:px-6 lg:px-8">
     <div class="sm:flex sm:items-center">
@@ -33,7 +33,7 @@
 
     <!-- Products Table -->
     <div id="products-table" class="mt-8">
-        {{ template "pages.products.table" . }}
+        {{ template "products/table" . }}
     </div>
 </div>
 
@@ -48,6 +48,4 @@
         </div>
     </div>
 </div>
-{{ end }}
-
-{{ template "layouts.base" . }}
+{{ template "base.end" . }}

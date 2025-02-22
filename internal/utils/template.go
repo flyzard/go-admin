@@ -67,7 +67,7 @@ func toInt(value interface{}) (int, error) {
 }
 
 // SetupTemplateFunctions adds custom functions to the template engine
-func SetupTemplateFunctions(r *gin.Engine) {
+func setupTemplateFunctions(r *gin.Engine) {
 	r.SetFuncMap(template.FuncMap{
 		// Math functions
 		"add": func(a, b int) int {
@@ -113,6 +113,7 @@ func SetupTemplateFunctions(r *gin.Engine) {
 }
 
 func SetupTemplates(r *gin.Engine) {
+	setupTemplateFunctions(r)
 	// Create a new template and specify the functions
 	tmpl := template.New("")
 	tmpl.Funcs(r.FuncMap)
@@ -132,8 +133,6 @@ func SetupTemplates(r *gin.Engine) {
 	}
 
 	registerTemplateFiles(files, tmpl)
-
-	// r.LoadHTMLGlob("internal/templates/**/*")
 
 	// Set the template engine
 	r.SetHTMLTemplate(tmpl)

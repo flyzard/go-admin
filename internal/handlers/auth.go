@@ -26,7 +26,7 @@ func NewAuthHandler(userService service.UserService) *AuthHandler {
 
 // ShowLogin renders the login page
 func (h *AuthHandler) ShowLogin(c *gin.Context) {
-	h.Render(c, "pages.auth.login", gin.H{
+	h.Render(c, "auth.login", gin.H{
 		"title": "Login",
 	})
 }
@@ -39,7 +39,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	}
 
 	if err := c.ShouldBind(&form); err != nil {
-		h.Render(c, "pages.auth.login", gin.H{
+		h.Render(c, "auth.login", gin.H{
 			"error": "Please fill in all fields correctly",
 		})
 		return
@@ -51,14 +51,14 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	// Get user by email
 	user, err := h.userService.GetUserByEmail(email)
 	if err != nil {
-		h.Render(c, "pages.auth.login", gin.H{
+		h.Render(c, "auth.login", gin.H{
 			"error": "Invalid credentials",
 		})
 		return
 	}
 
 	if !utils.CheckPassword(form.Password, user.Password) {
-		h.Render(c, "pages.auth.login", gin.H{
+		h.Render(c, "auth.login", gin.H{
 			"title": "Login",
 			"error": "Invalid credentials",
 		})
@@ -69,7 +69,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	session := sessions.Default(c)
 	session.Set("userID", user.ID)
 	if err := session.Save(); err != nil {
-		h.Render(c, "pages.auth.login", gin.H{
+		h.Render(c, "auth.login", gin.H{
 			"error": "Failed to save session",
 		})
 		return

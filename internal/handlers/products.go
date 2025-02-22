@@ -38,7 +38,7 @@ func (h *ProductHandler) List(c *gin.Context) {
 
 	// If it's an HTMX request, return only the table
 	if c.GetHeader("HX-Request") == "true" {
-		c.HTML(http.StatusOK, "pages.products.table", gin.H{
+		c.HTML(http.StatusOK, "products.table", gin.H{
 			"products": products,
 			"page":     page,
 			"total":    total,
@@ -48,7 +48,7 @@ func (h *ProductHandler) List(c *gin.Context) {
 	}
 
 	// Otherwise return the full page
-	h.Render(c, "pages.products.index", gin.H{
+	h.Render(c, "products.index", gin.H{
 		"title":    "Products",
 		"products": products,
 		"page":     page,
@@ -240,7 +240,7 @@ func (h *ProductHandler) Delete(c *gin.Context) {
 
 	if c.GetHeader("HX-Request") == "true" {
 		// Return success message or updated table
-		c.HTML(http.StatusOK, "pages.products.table", gin.H{
+		c.HTML(http.StatusOK, "products.table", gin.H{
 			"message": "Product deleted successfully",
 		})
 		return
@@ -289,14 +289,14 @@ func (h *ProductHandler) Search(c *gin.Context) {
 	}
 
 	if c.GetHeader("HX-Request") == "true" {
-		c.HTML(http.StatusOK, "pages.products.table", gin.H{
+		c.HTML(http.StatusOK, "products.table", gin.H{
 			"products": products,
 			"total":    total,
 		})
 		return
 	}
 
-	h.Render(c, "pages.products.index", gin.H{
+	h.Render(c, "products.index", gin.H{
 		"title":    "Search Results",
 		"products": products,
 		"total":    total,

@@ -1,3 +1,4 @@
+{{ define "base.start" }}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -17,16 +18,18 @@
 </head>
 
 <body class="min-h-screen bg-gray-100">
-    {{ template "partials.header" . }}
-    {{ template "partials.nav" . }}
+    {{ template "header" . }}
+    {{ template "nav" . }}
 
     <!-- Main Content -->
     <main class="container mx-auto px-4 py-8" id="content">
-        {{ block "content" . }}{{ end }}
+        {{ end }}
+
+        {{ define "base.end" }}
     </main>
 
     <!-- Footer -->
-    {{ template "partials.footer" . }}
+    {{ template "footer" . }}
 
     <!-- Custom JS -->
     <script>
@@ -44,3 +47,4 @@
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </body>
 </html>
+{{ end }}

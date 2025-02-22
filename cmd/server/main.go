@@ -3,7 +3,6 @@ package main
 
 import (
 	"fmt"
-	"html/template"
 	"log"
 	"os"
 
@@ -21,11 +20,6 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 )
-
-// TemplateHandler handles rendering templates.
-type TemplateHandler struct {
-	templates *template.Template
-}
 
 func main() {
 	// Load environment variables
@@ -54,7 +48,6 @@ func main() {
 	})
 	r.Use(sessions.Sessions("belcamp_session", store))
 
-	utils.SetupTemplateFunctions(r)
 	utils.SetupTemplates(r)
 	r.Use(middleware.CSRF())
 

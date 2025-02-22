@@ -19,5 +19,5 @@ func (h *DashboardHandler) Dashboard(c *gin.Context) {
 		"recentActivity": []string{},
 	}
 
-	h.Render(c, "pages.dashboard.index", data)
+	h.Render(c, "dashboard.index", data)
 }
