@@ -132,6 +132,7 @@ func (s *userService) ValidateCredentials(email, password string) (*models.User,
 
 // ListUsers returns a paginated list of users
 func (s *userService) ListUsers(page, pageSize int) ([]models.User, int64, error) {
+
 	var users []models.User
 	var total int64
 

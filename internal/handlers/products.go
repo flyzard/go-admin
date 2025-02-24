@@ -36,17 +36,6 @@ func (h *ProductHandler) List(c *gin.Context) {
 		return
 	}
 
-	// If it's an HTMX request, return only the table
-	if c.GetHeader("HX-Request") == "true" {
-		c.HTML(http.StatusOK, "products.table", gin.H{
-			"products": products,
-			"page":     page,
-			"total":    total,
-			"pages":    (total + int64(pageSize) - 1) / int64(pageSize),
-		})
-		return
-	}
-
 	// Otherwise return the full page
 	h.Render(c, "products.index", gin.H{
 		"title":    "Products",
@@ -54,7 +43,7 @@ func (h *ProductHandler) List(c *gin.Context) {
 		"page":     page,
 		"total":    total,
 		"pages":    (total + int64(pageSize) - 1) / int64(pageSize),
-	})
+	}, "products.table")
 }
 
 // Show displays a single product
@@ -74,24 +63,16 @@ func (h *ProductHandler) Show(c *gin.Context) {
 	h.Render(c, "products.show", gin.H{
 		"title":   product.Name,
 		"product": product,
-	})
+	}, "")
 }
 
 // ShowCreateForm displays the product creation form
 func (h *ProductHandler) ShowCreateForm(c *gin.Context) {
-	if c.GetHeader("HX-Request") == "true" {
-		c.HTML(http.StatusOK, "products.form", gin.H{
-			"action": "/products",
-			"method": "POST",
-		})
-		return
-	}
-
 	h.Render(c, "products.create", gin.H{
 		"title":  "Create Product",
 		"action": "/products",
 		"method": "POST",
-	})
+	}, "products.form")
 }
 
 // Create handles product creation
@@ -139,13 +120,7 @@ func (h *ProductHandler) Create(c *gin.Context) {
 		return
 	}
 
-	// Handle the response based on request type
-	if c.GetHeader("HX-Request") == "true" {
-		c.Header("HX-Redirect", "/products")
-		return
-	}
-
-	c.Redirect(http.StatusFound, "/products")
+	h.Redirect(c, "/products")
 }
 
 // ShowEditForm displays the product edit form
@@ -162,21 +137,12 @@ func (h *ProductHandler) ShowEditForm(c *gin.Context) {
 		return
 	}
 
-	if c.GetHeader("HX-Request") == "true" {
-		c.HTML(http.StatusOK, "products.form", gin.H{
-			"product": product,
-			"action":  "/products/" + strconv.FormatUint(id, 10),
-			"method":  "PUT",
-		})
-		return
-	}
-
 	h.Render(c, "products.edit", gin.H{
 		"title":   "Edit " + product.Name,
 		"product": product,
 		"action":  "/products/" + strconv.FormatUint(id, 10),
 		"method":  "PUT",
-	})
+	}, "products.form")
 }
 
 // Update handles product updates
@@ -216,13 +182,7 @@ func (h *ProductHandler) Update(c *gin.Context) {
 		return
 	}
 
-	// Handle the response based on request type
-	if c.GetHeader("HX-Request") == "true" {
-		c.Header("HX-Redirect", "/products")
-		return
-	}
-
-	c.Redirect(http.StatusFound, "/products")
+	h.Redirect(c, "/products")
 }
 
 // Delete handles product deletion
@@ -263,17 +223,10 @@ func (h *ProductHandler) Variants(c *gin.Context) {
 		return
 	}
 
-	if c.GetHeader("HX-Request") == "true" {
-		c.HTML(http.StatusOK, "products.variants", gin.H{
-			"variants": variants,
-		})
-		return
-	}
-
 	h.Render(c, "products.variants", gin.H{
 		"title":    "Product Variants",
 		"variants": variants,
-	})
+	}, "products.variants")
 }
 
 // Search handles product search
@@ -288,20 +241,12 @@ func (h *ProductHandler) Search(c *gin.Context) {
 		return
 	}
 
-	if c.GetHeader("HX-Request") == "true" {
-		c.HTML(http.StatusOK, "products.table", gin.H{
-			"products": products,
-			"total":    total,
-		})
-		return
-	}
-
 	h.Render(c, "products.index", gin.H{
 		"title":    "Search Results",
 		"products": products,
 		"total":    total,
 		"query":    query,
-	})
+	}, "products.table")
 }
 
 // handleError handles error responses
@@ -316,7 +261,7 @@ func (h *ProductHandler) handleError(c *gin.Context, err error) {
 	h.Render(c, "shared.error", gin.H{
 		"title": "Error",
 		"error": err.Error(),
-	})
+	}, "")
 }
 
 // Helper function to generate unique filenames

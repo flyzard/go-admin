@@ -1,50 +1,29 @@
 {{ define "header" }}
-<header class="bg-white shadow">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div class="flex justify-between items-center">
-            <div class="flex items-center">
-                <a href="/dashboard" class="text-lg font-semibold text-gray-800">Dashboard</a>
+<header class="h-16 bg-white border-b border-gray-200 fixed top-0 right-0 left-64 z-10">
+    <div class="flex items-center justify-between h-full px-4">
+        <div class="flex items-center space-x-4">
+            <span class="text-lg font-semibold">{{.title}}</span>
+            <div class="flex items-center space-x-2">
+                <span class="text-gray-600">List</span>
             </div>
-            
-            <div class="flex items-center space-x-4">
-                <!-- User Profile -->
-                <div class="relative" x-data="{ open: false }">
-                    <button 
-                        class="flex items-center space-x-2 text-gray-700 hover:text-gray-900"
-                        @click="open = !open">
-                        <span>{{ .user.Name }}</span>
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </button>
-                    
-                    <!-- Dropdown Menu -->
-                    <div 
-                        x-show="open"
-                        @click.away="open = false"
-                        class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1"
-                        style="display: none;">
-                        <a href="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
-                        <a href="/settings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
-                        <!-- <a 
-                            href="/logout" 
-                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                            hx-post="/logout"
-                            hx-push-url="true">
-                            Logout
-                        </a> -->
-
-                        <form id="logout-form" method="POST" action="/logout" class="hidden">
-                            <input type="hidden" name="gorilla.csrf.Token" value="{{ .csrf_token }}">
-                        </form>
-                        <a href="#" 
-                           onclick="event.preventDefault(); document.getElementById('logout-form').submit();" 
-                           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            Logout
-                        </a>
-                    </div>
-                </div>
+        </div>
+        <div class="flex items-center space-x-4">
+            <div class="relative">
+                <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                    type="text"
+                    name="search"
+                    placeholder="Search"
+                    class="pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
+                >
             </div>
+            <button class="p-2 hover:bg-gray-100 rounded-full">
+                <svg class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+            </button>
         </div>
     </div>
 </header>

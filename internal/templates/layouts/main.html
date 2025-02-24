@@ -17,20 +17,18 @@
     <link rel="stylesheet" href="/assets/css/styles.css">
 </head>
 
-<body class="min-h-screen bg-gray-100">
-    {{ template "header" . }}
+<body class="min-h-screen bg-gray-50">
+    
     {{ template "nav" . }}
 
-    <!-- Main Content -->
-    <main class="container mx-auto px-4 py-8" id="content">
-        {{ end }}
+    <div class="ml-64">
+        {{ template "header" . }}
+        <main class="p-6 mt-16">
+{{ end }}
 
-        {{ define "base.end" }}
-    </main>
-
-    <!-- Footer -->
-    {{ template "footer" . }}
-
+{{ define "base.end" }}
+        </main>
+    </div>
     <!-- Custom JS -->
     <script>
         // HTMX loading states

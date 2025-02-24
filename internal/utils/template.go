@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -108,6 +109,17 @@ func setupTemplateFunctions(r *gin.Engine) {
 		},
 		"eq": func(a, b string) bool {
 			return a == b
+		},
+
+		"formatCurrency": func(amount float64) string {
+			return fmt.Sprintf("$%.2f", amount)
+		},
+		"index": func(obj interface{}, key string) interface{} {
+			val := reflect.ValueOf(obj)
+			if val.Kind() == reflect.Map {
+				return val.MapIndex(reflect.ValueOf(key)).Interface()
+			}
+			return val.FieldByName(key).Interface()
 		},
 	})
 }

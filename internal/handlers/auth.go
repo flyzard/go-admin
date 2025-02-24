@@ -28,7 +28,7 @@ func NewAuthHandler(userService service.UserService) *AuthHandler {
 func (h *AuthHandler) ShowLogin(c *gin.Context) {
 	h.Render(c, "auth.login", gin.H{
 		"title": "Login",
-	})
+	}, "")
 }
 
 // Login logs in a user
@@ -41,7 +41,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	if err := c.ShouldBind(&form); err != nil {
 		h.Render(c, "auth.login", gin.H{
 			"error": "Please fill in all fields correctly",
-		})
+		}, "")
 		return
 	}
 
@@ -53,7 +53,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	if err != nil {
 		h.Render(c, "auth.login", gin.H{
 			"error": "Invalid credentials",
-		})
+		}, "")
 		return
 	}
 
@@ -61,7 +61,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		h.Render(c, "auth.login", gin.H{
 			"title": "Login",
 			"error": "Invalid credentials",
-		})
+		}, "")
 		return
 	}
 
@@ -71,7 +71,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	if err := session.Save(); err != nil {
 		h.Render(c, "auth.login", gin.H{
 			"error": "Failed to save session",
-		})
+		}, "")
 		return
 	}
 

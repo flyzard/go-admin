@@ -1,96 +1,18 @@
 {{ define "nav" }}
-<nav class="bg-gray-50 border-r min-h-screen w-64 px-4 py-6 fixed left-0 top-0">
-    <!-- Logo Area -->
-    <div class="mb-8">
-        <a href="/dashboard" class="flex items-center">
-            <span class="text-xl font-bold text-gray-800">Admin Panel</span>
-        </a>
+<div class="w-64 h-screen bg-white border-r border-gray-200 fixed left-0 top-0">
+    <div class="p-4 border-b border-gray-200">
+        <h1 class="text-xl font-bold">Logo</h1>
     </div>
-
-    <!-- Navigation Links -->
-    <div class="space-y-1">
-        <a href="/" 
-           class="block px-4 py-2 rounded-md text-gray-700 hover:bg-gray-200 {{ if eq .currentPage "dashboard" }}bg-gray-200{{ end }}">
-            <div class="flex items-center">
-                <span>Dashboard</span>
-            </div>
-        </a>
-
-        <a href="/catalogs" 
-           class="block px-4 py-2 rounded-md text-gray-700 hover:bg-gray-200 {{ if eq .currentPage "catalogs" }}bg-gray-200{{ end }}">
-            <div class="flex items-center">
-                <span>Catalogs</span>
-            </div>
-        </a>
-
-        <a href="/colors" 
-           class="block px-4 py-2 rounded-md text-gray-700 hover:bg-gray-200 {{ if eq .currentPage "colors" }}bg-gray-200{{ end }}">
-            <div class="flex items-center">
-                <span>Colors</span>
-            </div>
-        </a>
-
-        <a href="/orders" 
-           class="block px-4 py-2 rounded-md text-gray-700 hover:bg-gray-200 {{ if eq .currentPage "orders" }}bg-gray-200{{ end }}">
-            <div class="flex items-center">
-                <span>Orders</span>
-            </div>
-        </a>
-
-        <a href="/products-sections" 
-           class="block px-4 py-2 rounded-md text-gray-700 hover:bg-gray-200 {{ if eq .currentPage "products-sections" }}bg-gray-200{{ end }}">
-            <div class="flex items-center">
-                <span>Products Sections</span>
-            </div>
-        </a>
-
-        <a href="/slides" 
-           class="block px-4 py-2 rounded-md text-gray-700 hover:bg-gray-200 {{ if eq .currentPage "slides" }}bg-gray-200{{ end }}">
-            <div class="flex items-center">
-                <span>Slides</span>
-            </div>
-        </a>
-
-        <a href="/tickets" 
-           class="block px-4 py-2 rounded-md text-gray-700 hover:bg-gray-200 {{ if eq .currentPage "tickets" }}bg-gray-200{{ end }}">
-            <div class="flex items-center">
-                <span>Tickets</span>
-            </div>
-        </a>
-
-        <a href="/products" 
-           class="block px-4 py-2 rounded-md text-gray-700 hover:bg-gray-200 {{ if eq .currentPage "products" }}bg-gray-200{{ end }}">
-            <div class="flex items-center">
-                <span>Produtos</span>
-            </div>
-        </a>
-
-        <a href="/categories" 
-           class="block px-4 py-2 rounded-md text-gray-700 hover:bg-gray-200 {{ if eq .currentPage "categories" }}bg-gray-200{{ end }}">
-            <div class="flex items-center">
-                <span>Categories</span>
-            </div>
-        </a>
-    </div>
-
-    <!-- Shop Section -->
-    <div class="mt-8">
-        <h3 class="px-4 text-sm font-semibold text-gray-500 uppercase tracking-wider">SHOP</h3>
-        <div class="mt-2 space-y-1">
-            <a href="/users" 
-               class="block px-4 py-2 rounded-md text-gray-700 hover:bg-gray-200 {{ if eq .currentPage "users" }}bg-gray-200{{ end }}">
-                <div class="flex items-center">
-                    <span>Users</span>
-                </div>
-            </a>
-
-            <a href="/category-hierarchy" 
-               class="block px-4 py-2 rounded-md text-gray-700 hover:bg-gray-200 {{ if eq .currentPage "category-hierarchy" }}bg-gray-200{{ end }}">
-                <div class="flex items-center">
-                    <span>Hierarquia de Categorias</span>
-                </div>
-            </a>
-        </div>
-    </div>
-</nav>
+    <nav class="p-4">
+        <ul class="space-y-2">
+            {{range $item := .MenuItems}}
+            <li>
+                <a href="{{$item.URL}}" class="flex items-center p-2 rounded-lg hover:bg-gray-100 {{if eq $.currentPage $item.URL}}bg-gray-100{{end}}">
+                    <span class="text-gray-700">{{$item.Name}}</span>
+                </a>
+            </li>
+            {{end}}
+        </ul>
+    </nav>
+</div>
 {{ end }}
