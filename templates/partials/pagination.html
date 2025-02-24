@@ -1,0 +1,24 @@
+{{define "partials.pagination"}}
+<div class="p-4 flex items-center justify-between border-t border-gray-200">
+    <span class="text-sm text-gray-600">Showing {{.Pagination.Start}} to {{.Pagination.End}} of {{.Pagination.Total}} results</span>
+    <div class="flex items-center space-x-2">
+        <select class="border border-gray-200 rounded-lg px-2 py-1">
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+        </select>
+        <span class="text-sm text-gray-600">per page</span>
+        <div class="flex items-center space-x-1">
+            {{range .Pagination.Pages}}
+            <button class="px-3 py-1 rounded-lg {{if .Active}}bg-gray-100{{else}}hover:bg-gray-100{{end}}">
+                {{.Number}}
+            </button>
+            {{end}}
+            {{if .Pagination.HasMore}}
+            <span>...</span>
+            <button class="px-3 py-1 rounded-lg hover:bg-gray-100">{{.Pagination.LastPage}}</button>
+            {{end}}
+        </div>
+    </div>
+</div>
+{{end}}

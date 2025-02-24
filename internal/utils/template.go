@@ -131,7 +131,7 @@ func SetupTemplates(r *gin.Engine) {
 	tmpl.Funcs(r.FuncMap)
 
 	// Find all template files
-	files, err := filepath.Glob("internal/templates/**/*.html")
+	files, err := filepath.Glob("templates/**/*.html")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -139,7 +139,7 @@ func SetupTemplates(r *gin.Engine) {
 	// // Parse each template file and use its relative path as the template name
 	registerTemplateFiles(files, tmpl)
 
-	files, err = filepath.Glob("internal/templates/pages/**/*.html")
+	files, err = filepath.Glob("templates/pages/**/*.html")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -163,7 +163,7 @@ func registerTemplateFiles(files []string, tmpl *template.Template) {
 		}
 
 		// Get the relative path from the templates directory
-		name := strings.TrimPrefix(file, "internal/templates/")
+		name := strings.TrimPrefix(file, "templates/")
 		name = strings.TrimSuffix(name, ".html")
 		name = strings.ReplaceAll(name, "/", ".")
 		log.Printf("Loading template: %s as %s", file, name)
