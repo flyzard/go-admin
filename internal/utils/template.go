@@ -15,6 +15,7 @@ import (
 	"belcamp/internal/models"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/csrf"
 )
 
 // TemplateData is the data that is passed to the HTML templates
@@ -22,15 +23,34 @@ type TemplateData struct {
 	User        *models.User
 	CurrentPage string
 	CurrentYear int
+	Csrf_token  string
+	MenuItems   []MenuItem
+}
+
+type MenuItem struct {
+	Name string
+	URL  string
 }
 
 // NewTemplateData creates a new TemplateData struct
-func NewTemplateData(c *gin.Context) TemplateData {
-	return TemplateData{
-		User:        getCurrentUser(c),
-		CurrentPage: getCurrentPage(c),
-		CurrentYear: time.Now().Year(),
+func NewTemplateData(c *gin.Context) gin.H {
+	var menuItems = []MenuItem{
+		{"Dashboard", "/"},
+		{"Products", "/products"},
+		{"Orders", "/orders"},
+		{"Users", "/users"},
+		{"Categories", "/categories"},
 	}
+
+	data := gin.H{}
+
+	data["User"] = getCurrentUser(c)
+	data["CurrentPage"] = getCurrentPage(c)
+	data["CurrentYear"] = time.Now().Year()
+	data["Csrf_token"] = csrf.Token(c.Request)
+	data["MenuItems"] = menuItems
+
+	return data
 }
 
 // getCurrentUser retrieves the current user from the session
@@ -115,11 +135,45 @@ func setupTemplateFunctions(r *gin.Engine) {
 			return fmt.Sprintf("$%.2f", amount)
 		},
 		"index": func(obj interface{}, key string) interface{} {
-			val := reflect.ValueOf(obj)
-			if val.Kind() == reflect.Map {
-				return val.MapIndex(reflect.ValueOf(key)).Interface()
+			if obj == nil {
+				return nil
 			}
-			return val.FieldByName(key).Interface()
+
+			val := reflect.ValueOf(obj)
+			if !val.IsValid() {
+				return nil
+			}
+
+			switch val.Kind() {
+			case reflect.Map:
+				mapVal := val.MapIndex(reflect.ValueOf(key))
+				if !mapVal.IsValid() {
+					return nil
+				}
+				return mapVal.Interface()
+			case reflect.Struct:
+				fieldVal := val.FieldByName(key)
+				if !fieldVal.IsValid() {
+					return nil
+				}
+				return fieldVal.Interface()
+			default:
+				return nil
+			}
+		},
+		"getField": func(entity interface{}, field string) interface{} {
+			// Use reflection to get field value
+			val := reflect.ValueOf(entity)
+			if val.Kind() == reflect.Ptr {
+				val = val.Elem()
+			}
+			return val.FieldByName(field).Interface()
+		},
+		"equalAny": func(a, b interface{}) bool {
+			// Convert to strings for comparison
+			aStr := fmt.Sprintf("%v", a)
+			bStr := fmt.Sprintf("%v", b)
+			return aStr == bStr
 		},
 	})
 }

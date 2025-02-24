@@ -7,7 +7,7 @@
         <ul class="space-y-2">
             {{range $item := .MenuItems}}
             <li>
-                <a href="{{$item.URL}}" class="flex items-center p-2 rounded-lg hover:bg-gray-100 {{if eq $.currentPage $item.URL}}bg-gray-100{{end}}">
+                <a href="{{$item.URL}}" class="flex items-center p-2 rounded-lg hover:bg-gray-100 {{if equalAny $.currentPage $item.URL}}bg-gray-100{{end}}">
                     <span class="text-gray-700">{{$item.Name}}</span>
                 </a>
             </li>

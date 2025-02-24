@@ -1,0 +1,34 @@
+{{ define "error" }}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.title}} - Admin Panel</title>
+
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+
+<body class="min-h-screen bg-gray-50">
+    
+    {{ template "nav" . }}
+
+    <div class="ml-64">
+        {{ template "header" . }}
+        <main class="p-6 mt-16">
+            {{.error}}
+        </main>
+    </div>
+
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</body>
+</html>
+{{ end }}

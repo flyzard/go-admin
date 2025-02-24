@@ -8,6 +8,7 @@ import (
 
 	"belcamp/internal/database"
 	"belcamp/internal/handlers"
+	"belcamp/internal/infrastructure/setup"
 	"belcamp/internal/middleware"
 	"belcamp/internal/service"
 	"belcamp/internal/utils"
@@ -93,19 +94,12 @@ func setupRoutes(r *gin.Engine, db *gorm.DB) {
 	protected.Use(middleware.AuthMiddleware())
 	{
 		dashboardHandler := &handlers.DashboardHandler{}
+
 		protected.GET("/", dashboardHandler.Dashboard)
 		protected.POST("/logout", authHandler.Logout)
 
-		// Product routes
-		productService := service.NewProductService(db)
-		productHandler := handlers.NewProductHandler(productService)
-		protected.GET("/products", productHandler.List)
-		protected.GET("/products/new", productHandler.ShowCreateForm)
-		protected.POST("/products/new", productHandler.Create)
-		protected.GET("/products/:id", productHandler.Show)
-		protected.GET("/products/:id/edit", productHandler.ShowEditForm)
-		protected.POST("/products/:id/edit", productHandler.Update)
-		protected.POST("/products/:id/delete", productHandler.Delete)
+		setup.SetupProducts(db, protected)
+		setup.SetupCategories(db, protected)
 	}
 
 	// API routes group
