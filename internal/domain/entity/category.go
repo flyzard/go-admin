@@ -1,17 +1,25 @@
 package entity
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
-// Category represents the category model
 type Category struct {
 	gorm.Model
-	Name     string `gorm:"size:255;not null"`
-	Slug     string `gorm:"size:255"`
-	Icon     string `gorm:"size:255"`
-	IsActive bool   `gorm:"default:true"`
-	ParentID *uint
-	Parent   *Category
-	Order    int16 `gorm:"default:0"`
-	InMenu   bool  `gorm:"default:true"`
-	Products []Product
+	// ID        uint           `gorm:"primaryKey" json:"id"`
+	Name     string  `json:"name"`
+	Slug     *string `json:"slug,omitempty"`
+	Icon     *string `json:"icon,omitempty"`
+	IsActive bool    `gorm:"default:true" json:"is_active"`
+	ParentID *uint   `json:"parent_id,omitempty"`
+	Order    *int16  `gorm:"default:0" json:"order,omitempty"`
+	InMenu   bool    `gorm:"default:true" json:"in_menu"`
+	// DeletedAt gorm.DeletedAt `gorm:"index" json:"deleted_at,omitempty"`
+	// CreatedAt time.Time      `json:"created_at"`
+	// UpdatedAt time.Time      `json:"updated_at"`
+
+	// Relations
+	Parent   *Category  `gorm:"foreignKey:ParentID" json:"parent,omitempty"`
+	Children []Category `gorm:"foreignKey:ParentID" json:"children,omitempty"`
+	Products []Product  `gorm:"foreignKey:CategoryID" json:"products,omitempty"`
 }

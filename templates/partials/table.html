@@ -32,7 +32,6 @@
                 {{ range $.config.Columns }}
                 {{ if .Visible }}
                 <td class="px-6 py-4 whitespace-nowrap">
-                    <!-- This needs to be replaced with proper field access -->
                     {{ index $entity .Field }}
                 </td>
                 {{ end }}

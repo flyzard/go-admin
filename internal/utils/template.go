@@ -153,10 +153,18 @@ func setupTemplateFunctions(r *gin.Engine) {
 				return mapVal.Interface()
 			case reflect.Struct:
 				fieldVal := val.FieldByName(key)
-				if !fieldVal.IsValid() {
+				if fieldVal.IsValid() {
+					return fieldVal.Interface()
+				}
+				method := val.MethodByName(key)
+				if method.IsValid() {
+					results := method.Call([]reflect.Value{})
+					if len(results) > 0 {
+						return results[0].Interface()
+					}
 					return nil
 				}
-				return fieldVal.Interface()
+				return nil
 			default:
 				return nil
 			}

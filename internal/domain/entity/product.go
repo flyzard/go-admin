@@ -2,94 +2,196 @@ package entity
 
 import (
 	"belcamp/internal/domain/valueobject"
+	"database/sql/driver"
 	"encoding/json"
+	"errors"
+	"fmt"
+	"strconv"
 	"time"
 
 	"gorm.io/gorm"
 )
 
+type JSONMeasures map[string]interface{}
+type JSONPhotos []string
+type JSONColorPhotos map[string]interface{}
+type JSONSizes []string
+type JSONColors []map[string]interface{}
+
+// Product model
 type Product struct {
-	ID               uint             `gorm:"primaryKey;column:id;autoIncrement"`
-	Name             *string          `gorm:"column:name;type:varchar(255)"`
-	ShortDescription *string          `gorm:"column:short_description;type:varchar(255)"`
-	Description      *string          `gorm:"column:description;type:text"`
-	Status           bool             `gorm:"column:status;type:tinyint(1);default:1;not null"`
-	CreatedAt        *time.Time       `gorm:"column:created_at;type:timestamp"`
-	UpdatedAt        *time.Time       `gorm:"column:updated_at;type:timestamp"`
-	DeletedAt        gorm.DeletedAt   `gorm:"column:deleted_at;type:timestamp"`
-	Slug             string           `gorm:"column:slug;type:varchar(255);not null"`
-	Prices           json.RawMessage  `gorm:"column:prices;type:json;default:json_array();not null"`
-	Measures         json.RawMessage  `gorm:"column:measures;type:json;default:json_array()"`
-	Photos           json.RawMessage  `gorm:"column:photos;type:json"`
-	CategoryID       *uint            `gorm:"column:category_id;foreignKey:categories(id)"`
-	Datasheet        *string          `gorm:"column:datasheet;type:varchar(255)"`
-	ColorPhotos      json.RawMessage  `gorm:"column:color_photos;type:json;default:json_array();not null"`
-	Sizes            json.RawMessage  `gorm:"column:sizes;type:json;default:json_array()"`
-	Variants         []ProductVariant `gorm:"foreignKey:product_id"`
+	ID               uint            `gorm:"primaryKey" json:"id"`
+	Name             *string         `json:"name,omitempty"`
+	ShortDescription *string         `json:"short_description,omitempty"`
+	Description      *string         `json:"description,omitempty"`
+	Status           bool            `gorm:"default:true" json:"status"`
+	Slug             string          `json:"slug"`
+	Prices           NullJSONPrices  `gorm:"type:json" json:"prices"`
+	Measures         *JSONMeasures   `gorm:"type:json" json:"measures,omitempty"`
+	Photos           *JSONPhotos     `gorm:"type:json" json:"photos,omitempty"`
+	CategoryID       *uint           `json:"category_id,omitempty"`
+	Datasheet        *string         `json:"datasheet,omitempty"`
+	ColorPhotos      JSONColorPhotos `gorm:"type:json" json:"color_photos"`
+	Sizes            *JSONSizes      `gorm:"type:json" json:"sizes,omitempty"`
+	DeletedAt        gorm.DeletedAt  `gorm:"index" json:"deleted_at,omitempty"`
+	CreatedAt        time.Time       `json:"created_at"`
+	UpdatedAt        time.Time       `json:"updated_at"`
+
+	// Relations
+	Category           *Category           `gorm:"foreignKey:CategoryID" json:"category,omitempty"`
+	ProductVariants    []ProductVariant    `gorm:"foreignKey:ProductID" json:"product_variants,omitempty"`
+	ProductColorPhotos []ProductColorPhoto `gorm:"foreignKey:ProductID" json:"product_color_photos,omitempty"`
 }
 
-// Price represents a price tier
-type PriceTier struct {
-	Quantity string `json:"quantity"`
-	Price    string `json:"price"`
+// NullJSONPrices represents a nullable JSON field for prices
+type NullJSONPrices struct {
+	JSONPrices map[string]string
+	Valid      bool // Valid is true if JSONPrices is not NULL
 }
 
-// GetPrices converts the JSON prices to a map
-func (p *Product) GetPrices() (map[string]string, error) {
-	prices := make(map[string]string)
-	err := json.Unmarshal(p.Prices, &prices)
-	return prices, err
+// Scan implements the Scanner interface for NullJSONPrices
+func (nj *NullJSONPrices) Scan(value interface{}) error {
+	if value == nil {
+		nj.JSONPrices, nj.Valid = nil, false
+		return nil
+	}
+
+	// Convert the value to []byte
+	var data []byte
+	switch v := value.(type) {
+	case []byte:
+		data = v
+	case string:
+		data = []byte(v)
+	default:
+		return errors.New(fmt.Sprintf("unsupported Scan, storing driver.Value type %T into type *NullJSONPrices", value))
+	}
+
+	// Unmarshal the JSON data
+	var result map[string]string
+	err := json.Unmarshal(data, &result)
+	if err != nil {
+		nj.Valid = false
+		return err
+	}
+
+	// Set the result
+	nj.JSONPrices = result
+	nj.Valid = true
+	return nil
 }
 
-// Measure represents product measurements
-type Measurements struct {
-	Weight         string `json:"Peso,omitempty"`
-	Height         string `json:"Altura,omitempty"`
-	Width          string `json:"Largura,omitempty"`
-	Length         string `json:"Comprimento,omitempty"`
-	BoxWeight      string `json:"Peso de caixa,omitempty"`
-	PalletWeight   string `json:"Peso de palete,omitempty"`
-	BoxHeight      string `json:"Altura de caixa,omitempty"`
-	PalletHeight   string `json:"Altura de palete,omitempty"`
-	BoxesPerPallet string `json:"Caixas em palete,omitempty"`
-	BoxWidth       string `json:"Largura de caixa,omitempty"`
-	QuantityPerBox string `json:"Quantidade em caixa,omitempty"`
-	BoxLength      string `json:"Comprimento de caixa,omitempty"`
+// Value implements the driver.Valuer interface for NullJSONPrices
+func (nj NullJSONPrices) Value() (driver.Value, error) {
+	if !nj.Valid {
+		return nil, nil
+	}
+	return json.Marshal(nj.JSONPrices)
 }
 
-// GetMeasurements converts the JSON measures to a struct
-func (p *Product) GetMeasurements() (*Measurements, error) {
-	var measurements Measurements
-	err := json.Unmarshal(p.Measures, &measurements)
-	return &measurements, err
+// MarshalJSON implements the json.Marshaler interface for NullJSONPrices
+func (nj NullJSONPrices) MarshalJSON() ([]byte, error) {
+	if !nj.Valid {
+		return []byte("null"), nil
+	}
+	return json.Marshal(nj.JSONPrices)
 }
 
-// GetPhotos returns the photos array
-func (p *Product) GetPhotos() ([]string, error) {
-	var photos []string
-	err := json.Unmarshal(p.Photos, &photos)
-	return photos, err
+// UnmarshalJSON implements the json.Unmarshaler interface for NullJSONPrices
+func (nj *NullJSONPrices) UnmarshalJSON(data []byte) error {
+	// Check for null value
+	if string(data) == "null" {
+		nj.JSONPrices, nj.Valid = nil, false
+		return nil
+	}
+
+	// Unmarshal into map
+	var prices map[string]string
+	if err := json.Unmarshal(data, &prices); err != nil {
+		return err
+	}
+
+	nj.JSONPrices = prices
+	nj.Valid = true
+	return nil
 }
 
-// ColorPhoto represents color and associated photos
-type ColorInfo struct {
-	Colors     string   `json:"colors"`
-	Photos     []string `json:"photos"`
-	ColorCodes []string `json:"color_codes"`
+func (j *JSONMeasures) Scan(value interface{}) error {
+	if value == nil {
+		*j = JSONMeasures{}
+		return nil
+	}
+
+	var bytes []byte
+	switch v := value.(type) {
+	case []byte:
+		bytes = v
+	case string:
+		bytes = []byte(v)
+	default:
+		return fmt.Errorf("failed to scan JSONMeasures: unexpected data type %T", value)
+	}
+
+	var data map[string]interface{}
+	if err := json.Unmarshal(bytes, &data); err != nil {
+		return err
+	}
+
+	*j = JSONMeasures(data)
+	return nil
 }
 
-// GetColorPhotos returns the color photos map
-func (p *Product) GetColorPhotos() (map[string]ColorInfo, error) {
-	colorPhotos := make(map[string]ColorInfo)
-	err := json.Unmarshal(p.ColorPhotos, &colorPhotos)
-	return colorPhotos, err
+// Value implements the driver.Valuer interface for JSONMeasures
+func (j JSONMeasures) Value() (driver.Value, error) {
+	if j == nil {
+		return nil, nil
+	}
+	return json.Marshal(j)
 }
 
-// GetSizes returns the sizes array
-func (p *Product) GetSizes() ([]string, error) {
-	var sizes []string
-	err := json.Unmarshal(p.Sizes, &sizes)
-	return sizes, err
+// MarshalJSON for JSONPhotos
+func (j JSONPhotos) MarshalJSON() ([]byte, error) {
+	return json.Marshal([]string(j))
+}
+
+// UnmarshalJSON for JSONPhotos
+func (j *JSONPhotos) UnmarshalJSON(data []byte) error {
+	var v []string
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*j = JSONPhotos(v)
+	return nil
+}
+
+// MarshalJSON for JSONSizes
+func (j JSONSizes) MarshalJSON() ([]byte, error) {
+	return json.Marshal([]string(j))
+}
+
+// UnmarshalJSON for JSONSizes
+func (j *JSONSizes) UnmarshalJSON(data []byte) error {
+	var v []string
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*j = JSONSizes(v)
+	return nil
+}
+
+// MarshalJSON for JSONColors
+func (j JSONColors) MarshalJSON() ([]byte, error) {
+	return json.Marshal([]map[string]interface{}(j))
+}
+
+// UnmarshalJSON for JSONColors
+func (j *JSONColors) UnmarshalJSON(data []byte) error {
+	var v []map[string]interface{}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*j = JSONColors(v)
+	return nil
 }
 
 func (p Product) GetSmartTableConfig() valueobject.SmartTableConfig {
@@ -125,7 +227,7 @@ func (p Product) GetSmartTableConfig() valueobject.SmartTableConfig {
 				Visible:   true,
 			},
 			{
-				Field:      "Category.Name",
+				Field:      "GetCategoryName",
 				Label:      "Category",
 				Sortable:   true,
 				Filterable: true,
@@ -141,12 +243,10 @@ func (p Product) GetSmartTableConfig() valueobject.SmartTableConfig {
 				Visible:   true,
 			},
 			{
-				Field:     "Prices",
-				Label:     "Price (Base)",
-				Sortable:  false,
-				Formatter: "formatPrice",
-				Template:  "products/price_column.html", // Custom template for rendering prices
-				Visible:   true,
+				Field:    "FullPrice",
+				Label:    "Price (Base)",
+				Sortable: false,
+				Visible:  true,
 			},
 		},
 		DefaultSort:  "Name",
@@ -165,22 +265,198 @@ func (p Product) GetSmartTableConfig() valueobject.SmartTableConfig {
 				Action: "/products/{{.ID}}/edit",
 				Class:  "text-green-600 hover:text-green-900",
 			},
-			{
-				Label:   "Delete",
-				Icon:    "fas fa-trash",
-				Action:  "/products/{{.ID}}",
-				Confirm: true,
-				Message: "Are you sure you want to delete this product?",
-				Class:   "text-red-600 hover:text-red-900",
-				ShowWhen: func(entity interface{}) bool {
-					product, ok := entity.(Product)
-					if !ok {
-						return false
-					}
-					// Only show delete for products without variants
-					return len(product.Variants) == 0
-				},
-			},
+			// {
+			// 	Label:   "Delete",
+			// 	Icon:    "fas fa-trash",
+			// 	Action:  "/products/{{.ID}}",
+			// 	Confirm: true,
+			// 	Message: "Are you sure you want to delete this product?",
+			// 	Class:   "text-red-600 hover:text-red-900",
+			// 	ShowWhen: func(entity interface{}) bool {
+			// 		product, ok := entity.(Product)
+			// 		if !ok {
+			// 			return false
+			// 		}
+			// 		// Only show delete for products without variants
+			// 		return len(product.Variants) == 0
+			// 	},
+			// },
 		},
 	}
+}
+
+func (p Product) GetCategoryName() string {
+	if p.Category == nil {
+		return ""
+	}
+	return p.Category.Name
+}
+
+func (p Product) FullPrice() (float64, error) {
+	if !p.Prices.Valid {
+		return 0, nil
+	}
+
+	prices, err := p.GetPricesMap()
+	if err != nil {
+		return 0, err
+	}
+
+	// Try to get the price for quantity 1
+	if priceStr, exists := prices["1"]; exists {
+		return strconv.ParseFloat(priceStr, 64)
+	}
+
+	return 0, nil
+}
+
+func (p Product) GetPricesMap() (map[string]string, error) {
+	if !p.Prices.Valid {
+		return map[string]string{}, nil
+	}
+	return p.Prices.JSONPrices, nil
+}
+
+// --- JSONPhotos ---
+
+// Scan implements the sql.Scanner interface for JSONPhotos
+func (j *JSONPhotos) Scan(value interface{}) error {
+	if value == nil {
+		*j = JSONPhotos{}
+		return nil
+	}
+
+	var bytes []byte
+	switch v := value.(type) {
+	case []byte:
+		bytes = v
+	case string:
+		bytes = []byte(v)
+	default:
+		return fmt.Errorf("failed to scan JSONPhotos: unexpected data type %T", value)
+	}
+
+	var data []string
+	if err := json.Unmarshal(bytes, &data); err != nil {
+		return err
+	}
+
+	*j = JSONPhotos(data)
+	return nil
+}
+
+// Value implements the driver.Valuer interface for JSONPhotos
+func (j JSONPhotos) Value() (driver.Value, error) {
+	if j == nil {
+		return nil, nil
+	}
+	return json.Marshal(j)
+}
+
+// --- JSONColorPhotos ---
+
+// Scan implements the sql.Scanner interface for JSONColorPhotos
+func (j *JSONColorPhotos) Scan(value interface{}) error {
+	if value == nil {
+		*j = JSONColorPhotos{}
+		return nil
+	}
+
+	var bytes []byte
+	switch v := value.(type) {
+	case []byte:
+		bytes = v
+	case string:
+		bytes = []byte(v)
+	default:
+		return fmt.Errorf("failed to scan JSONColorPhotos: unexpected data type %T", value)
+	}
+
+	var data map[string]interface{}
+	if err := json.Unmarshal(bytes, &data); err != nil {
+		return err
+	}
+
+	*j = JSONColorPhotos(data)
+	return nil
+}
+
+// Value implements the driver.Valuer interface for JSONColorPhotos
+func (j JSONColorPhotos) Value() (driver.Value, error) {
+	if j == nil {
+		return nil, nil
+	}
+	return json.Marshal(j)
+}
+
+// --- JSONSizes ---
+
+// Scan implements the sql.Scanner interface for JSONSizes
+func (j *JSONSizes) Scan(value interface{}) error {
+	if value == nil {
+		*j = JSONSizes{}
+		return nil
+	}
+
+	var bytes []byte
+	switch v := value.(type) {
+	case []byte:
+		bytes = v
+	case string:
+		bytes = []byte(v)
+	default:
+		return fmt.Errorf("failed to scan JSONSizes: unexpected data type %T", value)
+	}
+
+	var data []string
+	if err := json.Unmarshal(bytes, &data); err != nil {
+		return err
+	}
+
+	*j = JSONSizes(data)
+	return nil
+}
+
+// Value implements the driver.Valuer interface for JSONSizes
+func (j JSONSizes) Value() (driver.Value, error) {
+	if j == nil {
+		return nil, nil
+	}
+	return json.Marshal(j)
+}
+
+// --- JSONColors ---
+
+// Scan implements the sql.Scanner interface for JSONColors
+func (j *JSONColors) Scan(value interface{}) error {
+	if value == nil {
+		*j = JSONColors{}
+		return nil
+	}
+
+	var bytes []byte
+	switch v := value.(type) {
+	case []byte:
+		bytes = v
+	case string:
+		bytes = []byte(v)
+	default:
+		return fmt.Errorf("failed to scan JSONColors: unexpected data type %T", value)
+	}
+
+	var data []map[string]interface{}
+	if err := json.Unmarshal(bytes, &data); err != nil {
+		return err
+	}
+
+	*j = JSONColors(data)
+	return nil
+}
+
+// Value implements the driver.Valuer interface for JSONColors
+func (j JSONColors) Value() (driver.Value, error) {
+	if j == nil {
+		return nil, nil
+	}
+	return json.Marshal(j)
 }

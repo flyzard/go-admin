@@ -15,7 +15,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// List method extension for smart tables
+// SmartTableList is a generic handler for listing entities with smart table
 func (h *CRUDHandler[T]) SmartTableList(c *gin.Context) {
 	// Parse query parameters
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -29,6 +29,12 @@ func (h *CRUDHandler[T]) SmartTableList(c *gin.Context) {
 	if err != nil {
 		c.HTML(http.StatusInternalServerError, "error.html", gin.H{"error": err.Error()})
 		return
+	}
+
+	for _, entity := range entities {
+		if product, ok := any(entity).(*entity.Product); ok {
+			println(product.Category.Name)
+		}
 	}
 
 	// Get config - try to get from entity type first
@@ -207,12 +213,12 @@ func getDefaultActions() []valueobject.SmartTableAction {
 			Action: "/{{.ID}}/edit",
 			Class:  "text-green-600 hover:text-green-900",
 		},
-		{
-			Label:   "Delete",
-			Action:  "/{{.ID}}",
-			Confirm: true,
-			Message: "Are you sure you want to delete this item?",
-			Class:   "text-red-600 hover:text-red-900",
-		},
+		// {
+		// 	Label:   "Delete",
+		// 	Action:  "/{{.ID}}",
+		// 	Confirm: true,
+		// 	Message: "Are you sure you want to delete this item?",
+		// 	Class:   "text-red-600 hover:text-red-900",
+		// },
 	}
 }

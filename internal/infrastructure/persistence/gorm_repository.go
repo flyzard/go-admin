@@ -39,7 +39,7 @@ func (r *GormRepository[T]) Delete(ctx context.Context, id uint) error {
 	return r.db.WithContext(ctx).Delete(new(T), id).Error
 }
 
-func (r *GormRepository[T]) List(ctx context.Context, page, pageSize int) ([]T, int64, error) {
+func (r *GormRepository[T]) List(ctx context.Context, page, pageSize int, preloadFields ...string) ([]T, int64, error) {
 	var entities []T
 	var total int64
 
@@ -47,10 +47,16 @@ func (r *GormRepository[T]) List(ctx context.Context, page, pageSize int) ([]T, 
 		return nil, 0, err
 	}
 
-	if err := r.db.WithContext(ctx).
+	query := r.db.WithContext(ctx).
 		Offset((page - 1) * pageSize).
-		Limit(pageSize).
-		Find(&entities).Error; err != nil {
+		Limit(pageSize)
+
+	// Apply preloading to each specified field
+	for _, field := range preloadFields {
+		query = query.Preload(field)
+	}
+
+	if err := query.Find(&entities).Error; err != nil {
 		return nil, 0, err
 	}
 
