@@ -37,6 +37,7 @@ func NewTemplateData(c *gin.Context) gin.H {
 		{"Dashboard", "/"},
 		{"Products", "/products"},
 		{"Orders", "/orders"},
+		{"Companies", "/companies"},
 		{"Users", "/users"},
 		{"Categories", "/categories"},
 	}
@@ -46,7 +47,7 @@ func NewTemplateData(c *gin.Context) gin.H {
 	data["User"] = getCurrentUser(c)
 	data["CurrentPage"] = getCurrentPage(c)
 	data["CurrentYear"] = time.Now().Year()
-	data["Csrf_token"] = csrf.Token(c.Request)
+	data["csrf_token"] = csrf.Token(c.Request)
 	data["MenuItems"] = menuItems
 
 	return data
@@ -182,7 +183,23 @@ func setupTemplateFunctions(r *gin.Engine) {
 			bStr := fmt.Sprintf("%v", b)
 			return aStr == bStr
 		},
+		"dict": dict,
 	})
+}
+
+func dict(values ...interface{}) (map[string]interface{}, error) {
+	if len(values)%2 != 0 {
+		return nil, fmt.Errorf("dict requires an even number of arguments")
+	}
+	dict := make(map[string]interface{}, len(values)/2)
+	for i := 0; i < len(values); i += 2 {
+		key, ok := values[i].(string)
+		if !ok {
+			return nil, fmt.Errorf("dict keys must be strings")
+		}
+		dict[key] = values[i+1]
+	}
+	return dict, nil
 }
 
 func SetupTemplates(r *gin.Engine) {

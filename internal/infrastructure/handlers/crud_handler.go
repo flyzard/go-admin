@@ -40,6 +40,7 @@ func (h *CRUDHandler[T]) RegisterDefaultRoutes(r *gin.RouterGroup, path string) 
 	group := r.Group(path)
 	group.GET("", h.SmartTableList)
 	group.GET("/:id", h.Get)
+	group.GET("/new", h.Get)
 	group.POST("", h.Create)
 	group.PUT("/:id", h.Update)
 	group.DELETE("/:id", h.Delete)
@@ -75,7 +76,7 @@ func (h *CRUDHandler[T]) Get(c *gin.Context) {
 		return
 	}
 
-	h.Render(c, h.tmpl+".index", gin.H{"entity": entity}, h.tmpl+".show")
+	h.Render(c, h.tmpl+".edit", gin.H{"entity": entity}, h.tmpl+".show")
 }
 
 func (h *CRUDHandler[T]) Create(c *gin.Context) {
@@ -117,13 +118,6 @@ func (h *CRUDHandler[T]) Update(c *gin.Context) {
 	}
 
 	h.Redirect(c, c.Request.URL.Path)
-
-	if c.GetHeader("HX-Request") == "true" {
-		c.HTML(http.StatusOK, h.tmpl+"/detail_partial.html", gin.H{"entity": existingEntity})
-		return
-	}
-
-	c.Redirect(http.StatusSeeOther, c.Request.URL.Path)
 }
 
 func (h *CRUDHandler[T]) Delete(c *gin.Context) {

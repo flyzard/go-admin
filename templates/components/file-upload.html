@@ -1,0 +1,98 @@
+<!-- File Upload Component -->
+<!-- Params:
+  .Name - field name for the form
+  .Label - display label
+  .Accept - file types to accept
+  .MaxSize - maximum file size in MB
+  .HelpText - help text to display
+  .ExistingFile - existing file path
+  .ExistingFileName - display name for existing file
+-->
+<div class="mt-6">
+  <label class="block text-sm font-medium text-gray-700 mb-1">{{.Label}}</label>
+  <div class="border border-gray-300 border-dashed rounded-md p-4 flex items-center justify-center flex-col">
+    <!-- Show existing file if available -->
+    {{if .ExistingFile}}
+    <div class="py-2 px-4 bg-gray-100 rounded-md text-sm text-gray-700 flex items-center mb-2">
+      <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+      </svg>
+      <span>{{.ExistingFileName}}</span>
+      <input type="hidden" name="existing_{{.Name}}" value="{{.ExistingFile}}">
+      <button type="button" class="ml-2 text-red-500 hover:text-red-700" id="remove-{{.Name}}">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    {{end}}
+    
+    <!-- File upload control -->
+    <div id="{{.Name}}-upload-container" {{if .ExistingFile}}class="hidden"{{end}}>
+      <input type="file" name="{{.Name}}" id="{{.Name}}-input" accept="{{.Accept}}" class="sr-only">
+      <button type="button" id="{{.Name}}-button" class="py-2 px-4 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 flex items-center">
+        <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+        </svg>
+        Adicionar Arquivo
+      </button>
+      <p class="text-xs text-gray-500 mt-2">{{.HelpText}}</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const setupFileUpload = (name) => {
+      const fileInput = document.getElementById(`${name}-input`);
+      const fileButton = document.getElementById(`${name}-button`);
+      const removeButton = document.getElementById(`remove-${name}`);
+      const uploadContainer = document.getElementById(`${name}-upload-container`);
+      
+      if (fileButton) {
+        fileButton.addEventListener('click', function() {
+          fileInput.click();
+        });
+      }
+      
+      if (fileInput) {
+        fileInput.addEventListener('change', function() {
+          if (this.files && this.files[0]) {
+            // You can add code here to display the selected filename
+            const filename = this.files[0].name;
+            // Optional: Add visual feedback that file was selected
+            const feedbackEl = document.createElement('div');
+            feedbackEl.className = 'text-sm text-green-600 mt-2';
+            feedbackEl.textContent = `Arquivo selecionado: ${filename}`;
+            
+            // Remove any existing feedback
+            const existingFeedback = uploadContainer.querySelector('.text-green-600');
+            if (existingFeedback) {
+              existingFeedback.remove();
+            }
+            
+            uploadContainer.appendChild(feedbackEl);
+          }
+        });
+      }
+      
+      if (removeButton) {
+        removeButton.addEventListener('click', function() {
+          // Add a hidden input to tell the server to remove the file
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = `remove_${name}`;
+          input.value = 'true';
+          this.parentNode.appendChild(input);
+          
+          // Hide the existing file info and show the upload container
+          this.parentNode.classList.add('hidden');
+          uploadContainer.classList.remove('hidden');
+        });
+      }
+    };
+    
+    // Initialize file upload for this component
+    setupFileUpload('{{.Name}}');
+  });
+</script>

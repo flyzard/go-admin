@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math"
 	"strconv"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -50,19 +51,19 @@ func (j JSONField) Value() (driver.Value, error) {
 
 // Product model
 type Product struct {
-	gorm.Model
-	Name             *string   `json:"name,omitempty"`
-	ShortDescription *string   `json:"short_description,omitempty"`
-	Description      *string   `json:"description,omitempty"`
-	Status           bool      `gorm:"default:true" json:"status"`
-	Slug             string    `json:"slug"`
-	Prices           JSONField `gorm:"type:json" json:"prices"`
-	Measures         JSONField `gorm:"type:json" json:"measures,omitempty"`
-	Photos           JSONField `gorm:"type:json" json:"photos,omitempty"`
-	CategoryID       *uint     `json:"category_id,omitempty"`
-	Datasheet        *string   `json:"datasheet,omitempty"`
-	ColorPhotos      JSONField `gorm:"type:json" json:"color_photos"`
-	Sizes            JSONField `gorm:"type:json" json:"sizes,omitempty"`
+	ID               uint      `gorm:"primarykey" json:"id" form:"id"`
+	Name             *string   `json:"name,omitempty" form:"name"`
+	ShortDescription *string   `json:"short_description,omitempty" form:"short_description"`
+	Description      *string   `json:"description,omitempty" form:"description"`
+	Status           bool      `gorm:"default:true" json:"status" form:"status"`
+	Slug             string    `json:"slug" form:"slug"`
+	Prices           JSONField `gorm:"type:json" json:"prices" form:"-"`
+	Measures         JSONField `gorm:"type:json" json:"measures,omitempty" form:"-"`
+	Photos           JSONField `gorm:"type:json" json:"photos,omitempty" form:"-"`
+	CategoryID       *uint     `json:"category_id,omitempty" form:"category_id"`
+	Datasheet        *string   `json:"datasheet,omitempty" form:"-"`
+	ColorPhotos      JSONField `gorm:"type:json" json:"color_photos" form:"-"`
+	Sizes            JSONField `gorm:"type:json" json:"sizes,omitempty" form:"-"`
 
 	// Relations
 	Category           *Category           `gorm:"foreignKey:CategoryID" json:"category,omitempty"`
@@ -75,6 +76,11 @@ type Product struct {
 	cachedPhotos      *JSONPhotos
 	cachedColorPhotos *JSONColorPhotos
 	cachedSizes       *JSONSizes
+
+	// Timestamps
+	CreatedAt time.Time `json:"created_at" form:"-"`
+	UpdatedAt time.Time `json:"updated_at" form:"-"`
+	DeletedAt gorm.DeletedAt
 }
 
 // JSON field getters

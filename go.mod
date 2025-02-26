@@ -23,6 +23,7 @@ require (
 	github.com/go-playground/validator/v10 v10.20.0 // indirect
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
+	github.com/google/uuid v1.6.0
 	github.com/gorilla/context v1.1.2 // indirect
 	github.com/gorilla/csrf v1.7.2
 	github.com/gorilla/securecookie v1.1.2 // indirect
