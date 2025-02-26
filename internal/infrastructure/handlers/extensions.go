@@ -31,12 +31,6 @@ func (h *CRUDHandler[T]) SmartTableList(c *gin.Context) {
 		return
 	}
 
-	for _, entity := range entities {
-		if product, ok := any(entity).(*entity.Product); ok {
-			println(product.Category.Name)
-		}
-	}
-
 	// Get config - try to get from entity type first
 	var config valueobject.SmartTableConfig
 

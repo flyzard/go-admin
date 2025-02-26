@@ -10,10 +10,10 @@ import (
 	"gorm.io/gorm"
 )
 
-func SetupCategories(db *gorm.DB, group *gin.RouterGroup) {
+func SetupUsers(db *gorm.DB, group *gin.RouterGroup) {
 	handlers.NewCRUDHandler(
 		service.NewCRUDService(
-			persistence.NewGormRepository[entity.Category](db),
-		), "categories",
-	).RegisterDefaultRoutes(group, "/categories")
+			persistence.NewGormRepository[entity.User](db),
+		), "users",
+	).RegisterDefaultRoutes(group, "/users")
 }

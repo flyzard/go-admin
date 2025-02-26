@@ -2,8 +2,8 @@ package setup
 
 import (
 	"belcamp/internal/domain/entity"
+	"belcamp/internal/infrastructure/handlers"
 	"belcamp/internal/infrastructure/persistence"
-	"belcamp/internal/interfaces/http/handlers"
 	"belcamp/internal/service"
 
 	"github.com/gin-gonic/gin"
@@ -20,11 +20,11 @@ func SetupProducts(db *gorm.DB, group *gin.RouterGroup) {
 	}
 
 	// Create service
-	svc := service.NewCRUDService[entity.Product](productRepo)
+	svc := service.NewCRUDService(productRepo)
 
 	// Create handlers
-	handler := handlers.NewCRUDHandler[entity.Product](svc, "products")
+	handler := handlers.NewCRUDHandler(svc, "products")
 
 	// Register routes
-	handler.RegisterRoutes(group, "/products")
+	handler.RegisterDefaultRoutes(group, "/products")
 }

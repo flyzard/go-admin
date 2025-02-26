@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"belcamp/internal/service"
-	"belcamp/internal/utils"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -14,13 +13,13 @@ import (
 // AuthHandler is a handler for authentication
 type AuthHandler struct {
 	BaseHandler
-	userService service.UserService
+	authService service.AuthService
 }
 
 // NewAuthHandler creates a new AuthHandler
-func NewAuthHandler(userService service.UserService) *AuthHandler {
+func NewAuthHandler(userService service.AuthService) *AuthHandler {
 	return &AuthHandler{
-		userService: userService,
+		authService: userService,
 	}
 }
 
@@ -49,7 +48,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	email := strings.TrimSpace(strings.ToLower(form.Email))
 
 	// Get user by email
-	user, err := h.userService.GetUserByEmail(email)
+	user, err := h.authService.GetUserByEmail(email)
 	if err != nil {
 		h.Render(c, "auth.login", gin.H{
 			"error": "Invalid credentials",
@@ -57,7 +56,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	if !utils.CheckPassword(form.Password, user.Password) {
+	if !service.CheckPassword(form.Password, user.Password) {
 		h.Render(c, "auth.login", gin.H{
 			"title": "Login",
 			"error": "Invalid credentials",

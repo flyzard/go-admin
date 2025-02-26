@@ -2,6 +2,7 @@
 package utils
 
 import (
+	"belcamp/internal/domain/entity"
 	"fmt"
 	"html/template"
 	"log"
@@ -12,15 +13,13 @@ import (
 	"strings"
 	"time"
 
-	"belcamp/internal/models"
-
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/csrf"
 )
 
 // TemplateData is the data that is passed to the HTML templates
 type TemplateData struct {
-	User        *models.User
+	User        *entity.User
 	CurrentPage string
 	CurrentYear int
 	Csrf_token  string
@@ -54,12 +53,12 @@ func NewTemplateData(c *gin.Context) gin.H {
 }
 
 // getCurrentUser retrieves the current user from the session
-func getCurrentUser(c *gin.Context) *models.User {
+func getCurrentUser(c *gin.Context) *entity.User {
 	user, exists := c.Get("user")
 	if !exists {
 		return nil
 	}
-	return user.(*models.User)
+	return user.(*entity.User)
 }
 
 // getCurrentPage gets the current page from the request path
@@ -67,9 +66,9 @@ func getCurrentPage(c *gin.Context) string {
 	path := c.Request.URL.Path
 	// Remove leading slash and return first segment
 	if len(path) > 1 {
-		return path[1:]
+		return "/" + path[1:]
 	}
-	return "dashboard"
+	return ""
 }
 
 func toInt(value interface{}) (int, error) {

@@ -50,11 +50,11 @@ func (h *BaseHandler) RenderError(c *gin.Context, status int, message string) {
 }
 
 func (h *BaseHandler) Redirect(c *gin.Context, path string) {
-	// Handle the response based on request type
 	if c.GetHeader("HX-Request") == "true" {
-		c.Header("HX-Redirect", "/products")
+		c.Header("HX-Redirect", path)
+		c.Status(http.StatusFound)
 		return
 	}
 
-	c.Redirect(http.StatusFound, "/products")
+	c.Redirect(http.StatusFound, path)
 }

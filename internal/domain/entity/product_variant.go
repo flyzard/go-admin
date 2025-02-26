@@ -10,7 +10,7 @@ type ProductVariant struct {
 	ID              uint           `gorm:"primaryKey" json:"id"`
 	ProductID       uint           `json:"product_id"`
 	SKU             string         `gorm:"size:20" json:"sku"`
-	Prices          NullJSONPrices `gorm:"type:json" json:"prices"`
+	Prices          JSONPrices     `gorm:"type:json" json:"prices"`
 	Size            *string        `gorm:"size:20" json:"size,omitempty"`
 	Availability    int            `gorm:"default:0" json:"availability"`
 	Status          bool           `gorm:"default:true" json:"status"`

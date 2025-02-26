@@ -2,20 +2,17 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
 	"belcamp/internal/database"
-	"belcamp/internal/handlers"
 	"belcamp/internal/infrastructure/setup"
 	"belcamp/internal/middleware"
-	"belcamp/internal/service"
+
 	"belcamp/internal/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 
 	"github.com/gin-contrib/sessions"
@@ -65,41 +62,23 @@ func main() {
 	r.Run(":" + port)
 }
 
-func initDB() (*gorm.DB, error) {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_NAME"),
-	)
-
-	return gorm.Open(mysql.Open(dsn), &gorm.Config{})
-}
-
 func setupRoutes(r *gin.Engine, db *gorm.DB) {
-	userService := service.NewUserService(db)
-	authHandler := handlers.NewAuthHandler(userService)
+	// Protected routes
+	protected := r.Group("/")
+	protected.Use(middleware.AuthMiddleware())
+	{
+		setup.SetupDashboard(db, protected)
+		setup.SetupProducts(db, protected)
+		setup.SetupCategories(db, protected)
+		setup.SetupOrders(db, protected)
+		setup.SetupUsers(db, protected)
+	}
 
 	// Public routes
 	public := r.Group("/")
 	public.Use(middleware.NoAuthMiddleware())
 	{
-		public.GET("/login", authHandler.ShowLogin)
-		public.POST("/login", authHandler.Login)
-	}
-
-	// Protected routes
-	protected := r.Group("/")
-	protected.Use(middleware.AuthMiddleware())
-	{
-		dashboardHandler := &handlers.DashboardHandler{}
-
-		protected.GET("/", dashboardHandler.Dashboard)
-		protected.POST("/logout", authHandler.Logout)
-
-		setup.SetupProducts(db, protected)
-		setup.SetupCategories(db, protected)
+		setup.SetupAuth(db, public, protected)
 	}
 
 	// API routes group
